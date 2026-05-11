@@ -1,7 +1,9 @@
 """ViewSet for the Post resource — controllers stay thin, services do the work."""
 from __future__ import annotations
 
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -10,6 +12,7 @@ from rest_framework.response import Response
 from apps.core.permissions import IsAuthorOrAdmin
 
 from . import services
+from .filters import PostFilterSet
 from .models import Post, PostStatus
 from .serializers import (
     PostDetailSerializer,
@@ -18,6 +21,14 @@ from .serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["posts"], summary="List posts"),
+    retrieve=extend_schema(tags=["posts"], summary="Retrieve a post by slug"),
+    create=extend_schema(tags=["posts"], summary="Create a post", responses={201: PostDetailSerializer}),
+    update=extend_schema(tags=["posts"], summary="Replace a post"),
+    partial_update=extend_schema(tags=["posts"], summary="Update a post"),
+    destroy=extend_schema(tags=["posts"], summary="Delete a post"),
+)
 class PostViewSet(viewsets.ModelViewSet):
     """CRUD for blog posts.
 
@@ -30,7 +41,7 @@ class PostViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrAdmin)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
-    filterset_fields = ("status", "author__username")
+    filterset_class = PostFilterSet
     search_fields = ("title", "excerpt", "content")
     ordering_fields = ("published_at", "created_at", "updated_at", "title")
     ordering = ("-published_at", "-created_at")
@@ -42,7 +53,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if user.is_authenticated and user.is_staff:
             return qs
         if user.is_authenticated:
-            return qs.filter(models_q_self_or_published(user))
+            return qs.filter(Q(status=PostStatus.PUBLISHED) | Q(author=user))
         return qs.filter(status=PostStatus.PUBLISHED)
 
     # -- Serializer selection ---------------------------------------------
@@ -76,20 +87,26 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     # -- Custom actions ----------------------------------------------------
+    @extend_schema(
+        tags=["posts"],
+        summary="Publish a post",
+        description="Transitions the post into the `published` state and stamps `published_at`.",
+        request=None,
+        responses={200: PostDetailSerializer},
+    )
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, slug=None):
         post = services.publish_post(self.get_object())
         return Response(PostDetailSerializer(post).data)
 
+    @extend_schema(
+        tags=["posts"],
+        summary="Archive a post",
+        description="Transitions the post into the `archived` state, hiding it from public listings.",
+        request=None,
+        responses={200: PostDetailSerializer},
+    )
     @action(detail=True, methods=["post"], url_path="archive")
     def archive(self, request, slug=None):
         post = services.archive_post(self.get_object())
         return Response(PostDetailSerializer(post).data)
-
-
-# Local helper to keep the viewset readable. Defined at module scope so it can
-# be unit-tested independently and so the queryset method stays one-liner-ish.
-def models_q_self_or_published(user):
-    from django.db.models import Q
-
-    return Q(status=PostStatus.PUBLISHED) | Q(author=user)

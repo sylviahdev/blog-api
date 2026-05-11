@@ -20,6 +20,7 @@ class PostListSerializer(serializers.ModelSerializer):
             "title",
             "slug",
             "excerpt",
+            "cover_image",
             "status",
             "author",
             "published_at",
@@ -41,6 +42,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "title",
             "slug",
             "excerpt",
+            "cover_image",
             "content",
             "status",
             "author",
@@ -65,11 +67,12 @@ class PostWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ("title", "content", "excerpt", "status")
+        fields = ("title", "content", "excerpt", "cover_image", "status")
         extra_kwargs = {
             "title": {"required": True, "allow_blank": False},
             "content": {"required": True, "allow_blank": False},
             "excerpt": {"required": False, "allow_blank": True},
+            "cover_image": {"required": False, "allow_blank": True},
         }
 
     def validate_title(self, value: str) -> str:

@@ -1,6 +1,7 @@
 """Thin API views — all mutations delegate to ``apps.users.services``."""
 from __future__ import annotations
 
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +16,11 @@ from .serializers import (
 )
 
 
+@extend_schema(
+    tags=["auth"],
+    summary="Register a new user",
+    responses={201: UserSerializer},
+)
 class RegisterView(generics.CreateAPIView):
     """POST /auth/register/ — public."""
 
@@ -28,6 +34,7 @@ class RegisterView(generics.CreateAPIView):
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=["auth"], summary="Retrieve or update the current user")
 class MeView(generics.RetrieveUpdateAPIView):
     """GET / PATCH /auth/me/ — authenticated user's profile."""
 
@@ -52,6 +59,12 @@ class ChangePasswordView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
+    @extend_schema(
+        tags=["auth"],
+        summary="Change the current user's password",
+        request=ChangePasswordSerializer,
+        responses={204: OpenApiResponse(description="Password changed")},
+    )
     def post(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

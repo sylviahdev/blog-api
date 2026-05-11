@@ -41,9 +41,17 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+## API Documentation
+
+Interactive docs powered by `drf-spectacular`:
+
+- **Swagger UI**: http://localhost:8000/api/docs/
+- **ReDoc**: http://localhost:8000/api/redoc/
+- **OpenAPI schema (YAML)**: http://localhost:8000/api/schema/
+
 ## Endpoints
 
-All endpoints are prefixed with `/api/v1/`.
+All resource endpoints are prefixed with `/api/v1/`.
 
 | Method | Path                          | Auth        | Purpose                           |
 |--------|-------------------------------|-------------|-----------------------------------|
@@ -63,6 +71,21 @@ All endpoints are prefixed with `/api/v1/`.
 | DELETE | `/posts/{slug}/`              | author      | Delete                            |
 | POST   | `/posts/{slug}/publish/`      | author      | Transition draft → published      |
 | POST   | `/posts/{slug}/archive/`      | author      | Transition published → archived   |
+
+## Filtering, search, ordering
+
+The post list endpoint supports:
+
+| Query param          | Example                              | Behavior                                  |
+|----------------------|--------------------------------------|-------------------------------------------|
+| `published`          | `?published=true`                    | Only published posts (alias for status)   |
+| `status`             | `?status=draft`                      | Exact status match                        |
+| `author`             | `?author=alice`                      | Filter by author username (case-insensitive) |
+| `created_after`      | `?created_after=2025-01-01T00:00:00Z`| Posts created on/after the given ISO time |
+| `created_before`     | `?created_before=2025-12-31T23:59:59Z`| Posts created on/before the given ISO time|
+| `search`             | `?search=django`                     | Full-text-ish match on title/excerpt/content |
+| `ordering`           | `?ordering=-published_at`            | Order by any of `published_at, created_at, updated_at, title` |
+| `page` / `page_size` | `?page=2&page_size=50`               | Pagination (max page size: 100)           |
 
 ## Authentication
 

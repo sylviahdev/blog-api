@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
+    "drf_spectacular",
     # Local
     "apps.core.apps.CoreConfig",
     "apps.users.apps.UsersConfig",
@@ -160,6 +161,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ),
     "EXCEPTION_HANDLER": "common.responses.api_exception_handler",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": (
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -185,6 +187,29 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
+}
+
+# ---------------------------------------------------------------------------
+# OpenAPI / Swagger (drf-spectacular)
+# ---------------------------------------------------------------------------
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Blog API",
+    "DESCRIPTION": "Production-grade Django REST Framework backend for a blog system.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": r"/api/v1",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": False,
+    },
+    "TAGS": [
+        {"name": "auth", "description": "Registration, login, profile management."},
+        {"name": "posts", "description": "Blog post CRUD and lifecycle actions."},
+        {"name": "system", "description": "Healthchecks and operational endpoints."},
+    ],
+    "SERVERS": [{"url": "/", "description": "Current host"}],
 }
 
 # ---------------------------------------------------------------------------

@@ -12,7 +12,10 @@
       "Bash(rm -f /tmp/blog_check.sqlite3 && ls /home/sylvia/projects/blog-api-backend/ && echo \"---\" && find /home/sylvia/projects/blog-api-backend -path /home/sylvia/projects/blog-api-backend/venv -prune -o -type f -print 2>&1 | grep -v __pycache__ | sort)",
       "Bash(psql --version)",
       "Read(//etc/postgresql/**)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(./venv/bin/python -c \"import secrets; print\\(secrets.token_urlsafe\\(64\\)\\)\")",
+      "Bash(./venv/bin/python manage.py check)",
+      "Bash(./venv/bin/python manage.py migrate --no-input)"
     ],
     "additionalDirectories": [
       "/tmp"

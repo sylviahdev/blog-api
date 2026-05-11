@@ -47,10 +47,9 @@ def create_post(*, author, title: str, content: str, **extra: Any) -> Post:
 @transaction.atomic
 def update_post(post: Post, **fields: Any) -> Post:
     """Apply a partial update. Recomputes excerpt and publish stamp when needed."""
-    allowed = {"title", "content", "excerpt", "status", "slug"}
     dirty: list[str] = []
 
-    for key in ("title", "content", "slug"):
+    for key in ("title", "content", "slug", "cover_image"):
         if key in fields and fields[key] is not None:
             setattr(post, key, fields[key])
             dirty.append(key)
@@ -75,10 +74,7 @@ def update_post(post: Post, **fields: Any) -> Post:
                 dirty.append("published_at")
 
     if dirty:
-        # de-dup while preserving order
         post.save(update_fields=list(dict.fromkeys(dirty)))
-    # silently ignore unknown keys — the serializer is the contract
-    _ = allowed
     return post
 
 

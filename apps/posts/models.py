@@ -26,6 +26,7 @@ class Post(BaseModel):
     slug = models.SlugField(max_length=255, unique=True, db_index=True)
     excerpt = models.CharField(max_length=300, blank=True)
     content = models.TextField()
+    cover_image = models.URLField(max_length=500, blank=True, default="")
     status = models.CharField(
         max_length=16,
         choices=PostStatus.choices,
