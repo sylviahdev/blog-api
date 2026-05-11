@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/home/sylvia/projects/blog-api-backend/venv/bin/pip install *)",
+      "Bash(DJANGO_SECRET_KEY=test DB_ENGINE=django.db.backends.sqlite3 DB_NAME=/tmp/blog_check.sqlite3 ./venv/bin/python manage.py makemigrations --dry-run --verbosity 2)",
+      "Bash(DJANGO_SECRET_KEY=test DB_ENGINE=django.db.backends.sqlite3 DB_NAME=/tmp/blog_check.sqlite3 ./venv/bin/python manage.py makemigrations users posts)",
+      "Bash(rm -f /tmp/blog_check.sqlite3)",
+      "Bash(DJANGO_SECRET_KEY=test DB_ENGINE=django.db.backends.sqlite3 DB_NAME=/tmp/blog_check.sqlite3 ./venv/bin/python manage.py migrate --no-input)",
+      "Bash(DJANGO_SECRET_KEY=test DB_ENGINE=django.db.backends.sqlite3 DB_NAME=/tmp/blog_check.sqlite3 ./venv/bin/python manage.py show_urls)",
+      "Bash(DJANGO_SECRET_KEY=test DB_ENGINE=django.db.backends.sqlite3 DB_NAME=/tmp/blog_check.sqlite3 ./venv/bin/python -c ' *)",
+      "Bash(DJANGO_SETTINGS_MODULE=config.settings DJANGO_SECRET_KEY=test DB_ENGINE=django.db.backends.sqlite3 DB_NAME=/tmp/blog_check.sqlite3 ./venv/bin/python -c ' *)",
+      "Bash(rm -f /tmp/blog_check.sqlite3 && ls /home/sylvia/projects/blog-api-backend/ && echo \"---\" && find /home/sylvia/projects/blog-api-backend -path /home/sylvia/projects/blog-api-backend/venv -prune -o -type f -print 2>&1 | grep -v __pycache__ | sort)",
+      "Bash(psql --version)",
+      "Read(//etc/postgresql/**)",
+      "Bash(gh auth *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}
